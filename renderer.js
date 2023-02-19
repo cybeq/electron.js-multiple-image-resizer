@@ -1,3 +1,15 @@
+// const download = async () => {
+//     const zipBuffer = await ipcRenderer.invoke('download');
+//     const blob = new Blob([zipBuffer], { type: 'application/zip' });
+//     const url = URL.createObjectURL(blob);
+//     const link = document.createElement('a');
+//     link.href = url;
+//     link.download = 'resized-images.zip';
+//     link.click();
+//     URL.revokeObjectURL(url);
+// } <<-- here a possibility to save for different path
+
+
 
 var images = [];
 var dataUrls = [];
@@ -8,15 +20,17 @@ document.getElementById('image').addEventListener('change', (e)=>{
      list.innerHTML += `<p>${all.name}</p>`
  }
 })
+document.getElementById('greyscale').addEventListener('change', (e)=>{
+    ipcRenderer.send('greyscale', e.target.checked)
+})
 
 for(let all of ['ext', 'height','width'])
 document.getElementById(all).addEventListener('change', (e)=>{
         ipcRenderer.send('reformart', {ext:document.getElementById('ext').value, height:parseInt(document.getElementById('height').value),
-                                       width: parseInt(document.getElementById('width').value)
-        })
-})
+                                       width: parseInt(document.getElementById('width').value)})})
 
 document.getElementById('submit').addEventListener('mousedown',()=> {
+    if(images.length>0)document.getElementById('submit').disabled=true;
     images.forEach(image=>{
         const reader = new FileReader();
         reader.addEventListener('load', () => {
@@ -27,58 +41,21 @@ document.getElementById('submit').addEventListener('mousedown',()=> {
     })
     setTimeout(()=>{
         if(dataUrls.length>0) {
-            ipcRenderer.send('images', dataUrls)
-
-        }
+            ipcRenderer.send('images', dataUrls)}
     },1000)
-
 })
 
 
 const goBack = () =>{
     ipcRenderer.send('restart', true)
 }
-const download = async () => {
-    const zipBuffer = await ipcRenderer.invoke('download');
-    const blob = new Blob([zipBuffer], { type: 'application/zip' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'resized-images.zip';
-    link.click();
-    URL.revokeObjectURL(url);
-}
-
-
-
-
-
-
-
 
 ipcRenderer.receive('translated', (args)=>{
-    // document.body.innerHTML='';
-    // const downloadButton = document.createElement("button");
-    // downloadButton.innerHTML="Download";
-    // downloadButton.addEventListener('click', ()=>download(args))
-    // document.body.appendChild(downloadButton)
-    // const goBackButton = document.createElement("button");
-    // goBackButton.innerHTML="Go back"
-    // goBackButton.addEventListener('mousedown', ()=>goBack())
-    // document.body.appendChild(goBackButton)
-    document.getElementById('translated').innerHTML="Images have been converted."
-    const downloadButton = document.createElement("button");
-    downloadButton.innerHTML="Download";
-    downloadButton.addEventListener('click', ()=>download(args))
+    document.body.innerHTML='<h1>Your images has been converted</h1><p>path: /app_directory/generated_images</p>';
+
     const goBackButton = document.createElement("button");
-    goBackButton.innerHTML="Go back"
+    goBackButton.innerHTML="Reload"
     goBackButton.addEventListener('mousedown', ()=>goBack())
-    document.getElementById('translated').appendChild(downloadButton)
-    document.getElementById('translated').appendChild(goBackButton)
-    document.getElementById('image').style.display="none"
-    document.getElementById('submit').style.display="none"
-    document.getElementById('parameters').style.display="none"
-    list.innerHTML="";
-    document.getElementById('image').files[0] = null;
-    console.log(args)
+    document.body.appendChild(goBackButton)
+
 })

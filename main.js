@@ -7,6 +7,7 @@ const fs = require('fs')
 var width  = 300;
 var height = 300;
 var format = 'jpeg';
+var greyscale = false;
 
 function createWindow () {
     // Create a new browser window
@@ -16,28 +17,24 @@ function createWindow () {
         webPreferences: {
             nodeIntegration: true, // Allow Node.js modules in the renderer process
             preload: path.join(__dirname, 'preload.js'),
-            contextIsolation: true
-        }
+            contextIsolation: true }
     })
-
-
     mainWindow.loadFile(path.join(__dirname, 'index.html'))
-
-
     mainWindow.webContents.openDevTools()
-
 }
 const archive = archiver('zip', {
     zlib: { level: 9 }
 });
-const output = fs.createWriteStream(path.join(__dirname, 'resized-images.zip'));
+const microtime = Date.now()
+const output = fs.createWriteStream(path.join(__dirname, 'generated_images', `${microtime}_resized-images.zip`));
 archive.pipe(output);
+
 ipcMain.on('images', (event, arg) => {
     const translated = [];
     arg.forEach(async (imageUrl, index)=> {
             const imageBuffer = Buffer.from(imageUrl.replace(/^data:image\/\w+;base64,/, ''), 'base64');
-
             let resizedImageBuffer = await sharp(imageBuffer).resize({ width: width, height: height });
+            if(greyscale) resizedImageBuffer = resizedImageBuffer.greyscale()
             switch(format){
                 case "png":
                     resizedImageBuffer = resizedImageBuffer.png()
@@ -46,8 +43,7 @@ ipcMain.on('images', (event, arg) => {
                     resizedImageBuffer = resizedImageBuffer.jpeg()
                     break;
             }
-
-                        resizedImageBuffer = await resizedImageBuffer.toBuffer();
+            resizedImageBuffer = await resizedImageBuffer.toBuffer();
 
             await archive.append(resizedImageBuffer, { name: `image-${index}.${format}` })
 
@@ -75,18 +71,16 @@ ipcMain.on('reformart', (e, arg)=>{
     if(arg.width  && arg.width > 0) width = arg.width
 
 })
+ipcMain.on('greyscale', (e, args)=>{
+    greyscale = args
+})
 app.whenReady().then(() => {
     createWindow()
-
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
-            createWindow()
-        }
-    })
-})
+            createWindow()}})})
+
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
-        app.quit()
-    }
-})
+        app.quit()}})
