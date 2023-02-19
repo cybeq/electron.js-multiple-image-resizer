@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<style>
+
+    input, button{
+        display: block;
+    }
+
+</style>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Multiple image resizer</title>
+</head>
+<body>
+<h1>Choose your images</h1>
+<div id="parameters">
+<input id="image" type="file" accept="image/gif, image/jpeg, image/png" multiple/>
+Width: <input id="width" min="1" value="300" max="10000" type="number" placeholder="or leave empty">
+Height: <input id="height"  min="1" value="300" max="10000" type="number" placeholder="or leave empty">
+Extension:
+<select name="ext" id="ext">
+    <option value="jpeg">JPEG</option>
+    <option value="png">PNG</option>
+</select>
+</div>
+<button id="submit">CONVERT</button>
+<div id="list"></div>
+
+<div id="translated"></div>
+</body>
+
+<script src="renderer.js"></script>
+
+</html>
+

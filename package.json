@@ -1,0 +1,23 @@
+{
+    "name": "photofilter",
+    "dependencies": {
+        "archiver": "^5.3.1",
+        "data-uri-to-buffer": "^4.0.1",
+        "electron": "^24.0.0-alpha.3",
+        "fs": "^0.0.1-security",
+        "sharp": "^0.31.3"
+    },
+    "scripts": {
+        "start": "electron .",
+        "wp": "webpack --mode=development --watch"
+    },
+    "main": "main.js",
+    "version": "0.0.0",
+    "license": "MIT",
+    "description": "",
+    "author": "mateusz",
+    "devDependencies": {
+        "webpack": "^5.75.0",
+        "webpack-cli": "^5.0.1"
+    }
+}
