@@ -17,8 +17,9 @@ function createWindow () {
         webPreferences: {
             nodeIntegration: true, // Allow Node.js modules in the renderer process
             preload: path.join(__dirname, 'preload.js'),
-            contextIsolation: true },
-            devTools:false
+            contextIsolation: true ,
+            devTools:false},
+
     })
     mainWindow.loadFile(path.join(__dirname, 'index.html'))
     mainWindow.webContents.openDevTools()
