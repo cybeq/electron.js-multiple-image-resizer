@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain} = require('electron')
+const { app, BrowserWindow, ipcMain, Menu} = require('electron')
 const path = require('path')
 const sharp = require('sharp');
 const archiver = require('archiver');
@@ -13,11 +13,12 @@ function createWindow () {
     // Create a new browser window
     const mainWindow = new BrowserWindow({
         width: 800,
-        height: 600,
+        height: 700,
         webPreferences: {
             nodeIntegration: true, // Allow Node.js modules in the renderer process
             preload: path.join(__dirname, 'preload.js'),
-            contextIsolation: true }
+            contextIsolation: true },
+            devTools:false
     })
     mainWindow.loadFile(path.join(__dirname, 'index.html'))
     mainWindow.webContents.openDevTools()
@@ -29,6 +30,12 @@ const microtime = Date.now()
 const output = fs.createWriteStream(path.join(__dirname, 'generated_images', `${microtime}_resized-images.zip`));
 archive.pipe(output);
 
+function preventDevTools(event) {
+    if (event.webContents.getType() === 'webview') {
+        event.preventDefault();
+    }
+}
+app.on('will-attach-webview', preventDevTools);
 ipcMain.on('images', (event, arg) => {
     const translated = [];
     arg.forEach(async (imageUrl, index)=> {
@@ -75,6 +82,8 @@ ipcMain.on('greyscale', (e, args)=>{
     greyscale = args
 })
 app.whenReady().then(() => {
+    const emptyMenu = Menu.buildFromTemplate([]);
+    Menu.setApplicationMenu(emptyMenu);
     createWindow()
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
