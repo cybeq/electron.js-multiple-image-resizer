@@ -7,7 +7,7 @@ A small application designed to resize many photos at once and save them in one 
 
 ## Run dev
 ```
-npm run start
+$ npm run start
 ```
 
 
